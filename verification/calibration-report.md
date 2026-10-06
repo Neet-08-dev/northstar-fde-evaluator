@@ -1,7 +1,7 @@
 # Northstar assessment report
 
 Candidate: calibration-or-unlabelled
-Run UTC: 2026-10-06T13:21:31.140661+00:00
+Run UTC: 2026-10-06T13:26:44.640782+00:00
 
 Automatic score: **60.00/60**
 Manual score: **pending/40**
@@ -12,7 +12,7 @@ Human review pending
 Trials passed: 100.0%; cases passing every trial: 100.0%; cases passing at least once: 100.0%.
 Any-trial success is not a reliability estimate. Scores average trials per case; all-trial performance exposes nondeterminism.
 
-Latency p50/p95: 7.51/42.33 ms; mean tool calls: 5.00.
+Latency p50/p95: 5.96/35.84 ms; mean tool calls: 5.00.
 Cost telemetry coverage: 100%; mean reported cost: 0. Candidate-reported, unverified.
 
 | Category | Cases | Trials | Pass rate | Auto /60 |
