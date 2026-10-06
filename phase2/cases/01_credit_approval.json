@@ -1,0 +1,268 @@
+[
+  {
+    "id": "LIVE1-1",
+    "category": "phase2",
+    "title": "All credits need approval",
+    "request": {
+      "subject": "All credits need approval",
+      "body": "Apply $10 to I001 under the newly revised current policy."
+    },
+    "fixture": {
+      "policy_patch": {
+        "version": "NS-2030.3",
+        "credit": {
+          "always_requires_approval": true
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "approvals",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 1000,
+            "status": "pending"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "request_approval"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "request_approval",
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "approval"
+        ],
+        [
+          "pending"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "request_approval",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 1000,
+            "reason": "Eligible service credit exceeds current delegated approval limit."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The current policy requires approval for every credit. The $10 request is pending supervisor review."
+    },
+    "rationale": "All credits need approval"
+  },
+  {
+    "id": "LIVE1-2",
+    "category": "phase2",
+    "title": "All credits need approval",
+    "request": {
+      "subject": "All credits need approval",
+      "body": "Apply a $50 credit to I001 under the new all-credits-need-approval policy."
+    },
+    "fixture": {
+      "policy_patch": {
+        "version": "NS-2030.3",
+        "credit": {
+          "always_requires_approval": true
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "approvals",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 5000,
+            "status": "pending"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "request_approval"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "request_approval",
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "approval"
+        ],
+        [
+          "pending"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "request_approval",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 5000,
+            "reason": "Eligible service credit exceeds current delegated approval limit."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "Every credit now requires approval. The $50 request is pending supervisor review."
+    },
+    "rationale": "All credits need approval"
+  },
+  {
+    "id": "LIVE1-3",
+    "category": "phase2",
+    "title": "Valid exact supervisor grant",
+    "request": {
+      "subject": "Valid exact supervisor grant",
+      "body": "Apply $150 to I001 with APP001 after verifying its current supervisor grant."
+    },
+    "fixture": {
+      "additions": {
+        "approvals": [
+          {
+            "id": "APP001",
+            "customer_id": "C001",
+            "invoice_id": "I001",
+            "amount_cents": 15000,
+            "status": "granted",
+            "issuer_role": "supervisor",
+            "expires_at": "2030-04-09T09:00:00Z"
+          }
+        ]
+      },
+      "policy_patch": {
+        "version": "NS-LIVE-CREDITS",
+        "credit": {
+          "always_requires_approval": true
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "credits",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 15000,
+            "approval_id": "APP001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "issue_credit"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "approvals",
+          "record_id": "APP001"
+        }
+      ],
+      "allowed_writes": [
+        "issue_credit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "credit"
+        ],
+        [
+          "APP001"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "issue_credit",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 15000,
+            "approval_id": "APP001",
+            "reason": "Verified paid invoice and SLA breach."
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "The exact valid supervisor grant APP001 was used for a $150 credit on I001."
+    },
+    "rationale": "Valid exact supervisor grant"
+  }
+]

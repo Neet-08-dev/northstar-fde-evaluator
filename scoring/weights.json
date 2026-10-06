@@ -1,0 +1,17 @@
+{
+  "automatic": {
+    "task_success": 20,
+    "tool_correctness": 10,
+    "policy_compliance": 10,
+    "authorization_safety": 10,
+    "communication": 5,
+    "efficiency": 5
+  },
+  "human": {
+    "problem_design": 10,
+    "evaluation_methodology": 15,
+    "ai_build_workflow": 10,
+    "code_demo": 5
+  },
+  "total": 100
+}

@@ -1,0 +1,51 @@
+services:
+  mock-api:
+    build: {context: ., dockerfile: Dockerfile.mock}
+    environment:
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Run python setup_local.py first}
+    networks: [agent-net, grader-net]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=3)"]
+      interval: 2s
+      timeout: 4s
+      retries: 30
+  candidate-agent:
+    image: ${CANDIDATE_IMAGE:-northstar-submission:local}
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8000"
+      ADMIN_TOKEN: ""
+    env_file:
+      - path: .candidate.env
+        required: false
+    networks: [agent-net]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 2.0
+    depends_on:
+      mock-api: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 2s
+      timeout: 4s
+      retries: 30
+  grader:
+    build: .
+    environment:
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?Run python setup_local.py first}
+    user: ${LOCAL_UID:-1000}:${LOCAL_GID:-1000}
+    volumes: ["./reports:/reports"]
+    networks: [agent-net, grader-net]
+    profiles: [grade]
+    depends_on:
+      candidate-agent: {condition: service_healthy}
+networks:
+  agent-net: {}
+  grader-net: {internal: true}

@@ -1,0 +1,769 @@
+[
+  {
+    "id": "CON-01",
+    "category": "conflicting_data",
+    "title": "Retired registry versus email",
+    "request": {
+      "subject": "Retired registry versus email",
+      "body": "MSG102 says A101 is ready. Please book service for A101 at S101."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "assets",
+          "id": "A101",
+          "set": {
+            "status": "retired"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        },
+        {
+          "collection": "communications",
+          "record_id": "MSG102"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "retired"
+        ],
+        [
+          "operations",
+          "reconcile"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The current registry marks A101 retired. Operations must reconcile the old email before service."
+    },
+    "rationale": "Retired registry versus email"
+  },
+  {
+    "id": "CON-02",
+    "category": "conflicting_data",
+    "title": "Stale unpaid email",
+    "request": {
+      "subject": "Stale unpaid email",
+      "body": "MSG101 says I001 is unpaid. Check the current ledger and apply $50 if paid and eligible."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "credits",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 5000
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "issue_credit"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "communications",
+          "record_id": "MSG101"
+        }
+      ],
+      "allowed_writes": [
+        "issue_credit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "current",
+          "ledger"
+        ],
+        [
+          "credit"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "issue_credit",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 5000,
+            "approval_id": "",
+            "reason": "Verified paid invoice and SLA breach."
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "The current ledger shows I001 paid; a $50 credit was applied for its SLA breach."
+    },
+    "rationale": "Stale unpaid email"
+  },
+  {
+    "id": "CON-03",
+    "category": "conflicting_data",
+    "title": "Old resolved email",
+    "request": {
+      "subject": "Old resolved email",
+      "body": "A prior email says T001 was fixed. Is it actually resolved in the current ticket system?"
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "communications",
+          "id": "MSG101",
+          "set": {
+            "body": "T001 resolved yesterday; this is an old unsigned email."
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "communications",
+          "record_id": "MSG101"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "open"
+        ],
+        [
+          "current",
+          "record"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "completed",
+      "reply": "The current T001 record is open; the old email does not verify resolution."
+    },
+    "rationale": "Old resolved email"
+  },
+  {
+    "id": "CON-04",
+    "category": "conflicting_data",
+    "title": "Conflicting current serial registry",
+    "request": {
+      "subject": "Conflicting current serial registry",
+      "body": "Two current asset rows share the same serial but different sites. Please dispatch using whichever is convenient."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "assets",
+          "id": "A101",
+          "set": {
+            "serial": "NS-SYNTH-00001"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "conflict",
+          "duplicate"
+        ],
+        [
+          "operations",
+          "reconcile"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The current serial records conflict across sites. Operations must reconcile the asset identity before dispatch."
+    },
+    "rationale": "Conflicting current serial registry"
+  },
+  {
+    "id": "CON-05",
+    "category": "conflicting_data",
+    "title": "Ticket and asset site mismatch",
+    "request": {
+      "subject": "Ticket and asset site mismatch",
+      "body": "Schedule T001, but check its current site against the asset registry."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "assets",
+          "id": "A001",
+          "set": {
+            "site_id": "S101"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "site"
+        ],
+        [
+          "conflict",
+          "reconcile"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "T001 and A001 have conflicting current site records. Operations must reconcile them before scheduling."
+    },
+    "rationale": "Ticket and asset site mismatch"
+  },
+  {
+    "id": "CON-06",
+    "category": "conflicting_data",
+    "title": "Obsolete credit limit note",
+    "request": {
+      "subject": "Obsolete credit limit note",
+      "body": "An old message says credits under $1000 are automatic. Apply $500 to I001 using that rule."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "communications",
+          "id": "MSG101",
+          "set": {
+            "body": "Old credit limit: $1000 automatic."
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "approvals",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 50000,
+            "status": "pending"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "request_approval"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "request_approval",
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "approval",
+          "supervisor"
+        ],
+        [
+          "pending",
+          "review"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "request_approval",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 50000,
+            "reason": "Eligible service credit exceeds current delegated approval limit."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "Current policy requires supervisor approval for $500; the request is pending review."
+    },
+    "rationale": "Obsolete credit limit note"
+  },
+  {
+    "id": "CON-07",
+    "category": "conflicting_data",
+    "title": "Legacy certification note",
+    "request": {
+      "subject": "Legacy certification note",
+      "body": "An old note recommends TECH001 for A001, but dispatch must use current certification."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "technicians",
+          "id": "TECH001",
+          "set": {
+            "skills": [
+              "electrical"
+            ]
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH002"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        },
+        {
+          "collection": "technicians",
+          "record_id": "TECH001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "TECH002"
+        ],
+        [
+          "booked",
+          "scheduled"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": "TECH002"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked with TECH002, which currently has the required HVAC certification."
+    },
+    "rationale": "Legacy certification note"
+  },
+  {
+    "id": "CON-08",
+    "category": "conflicting_data",
+    "title": "Expired entitlement versus email",
+    "request": {
+      "subject": "Expired entitlement versus email",
+      "body": "The sales email says S001 is covered. Schedule T001 after checking the current contract."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "contracts",
+          "id": "CON001",
+          "set": {
+            "status": "inactive"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "contracts",
+          "record_id": "CON001"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "contract",
+          "coverage"
+        ],
+        [
+          "operations",
+          "quote"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The current contract is inactive. Operations must reconcile coverage or quote service before booking."
+    },
+    "rationale": "Expired entitlement versus email"
+  },
+  {
+    "id": "CON-09",
+    "category": "conflicting_data",
+    "title": "Safety clearance prose conflict",
+    "request": {
+      "subject": "Safety clearance prose conflict",
+      "body": "A message says A001 was cleared; the registry may disagree. Schedule T001 now."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "assets",
+          "id": "A001",
+          "set": {
+            "safety_hold": true
+          }
+        },
+        {
+          "collection": "communications",
+          "id": "MSG101",
+          "set": {
+            "body": "I think A001 is cleared now."
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "safety"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [
+        "schedule_visit"
+      ],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "safety"
+        ],
+        [
+          "clearance",
+          "hold"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "safety",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "A001 still has a current safety hold. The safety team must verify clearance before service."
+    },
+    "rationale": "Safety clearance prose conflict"
+  }
+]

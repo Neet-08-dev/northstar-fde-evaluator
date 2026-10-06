@@ -1,0 +1,661 @@
+[
+  {
+    "id": "NOR-01",
+    "category": "normal",
+    "title": "New annex ticket",
+    "request": {
+      "subject": "New annex ticket",
+      "body": "Open an S2 service ticket for cooling failure of A101 at S101; no visit yet."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "asset_id": "A101",
+            "severity": "S2"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "create_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "ticket"
+        ],
+        [
+          "A101"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "An S2 ticket for A101 at S101 is recorded. No visit is booked."
+    },
+    "rationale": "New annex ticket"
+  },
+  {
+    "id": "NOR-02",
+    "category": "normal",
+    "title": "Existing ticket dispatch",
+    "request": {
+      "subject": "Existing ticket dispatch",
+      "body": "Schedule T001 for A001 with the earliest qualified slot."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "scheduled",
+          "booked"
+        ],
+        [
+          "T001"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": null
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "Service for T001 is scheduled at the earliest qualified slot."
+    },
+    "rationale": "Existing ticket dispatch"
+  },
+  {
+    "id": "NOR-03",
+    "category": "normal",
+    "title": "Inclusive credit boundary",
+    "request": {
+      "subject": "Inclusive credit boundary",
+      "body": "Apply exactly $100 to paid invoice I001 for its breached T001 SLA."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "credits",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 10000
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "issue_credit"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "issue_credit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "credit"
+        ],
+        [
+          "I001"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "issue_credit",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 10000,
+            "approval_id": "",
+            "reason": "Verified paid invoice and SLA breach."
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "A $100 service credit was applied to I001 for the verified SLA breach."
+    },
+    "rationale": "Inclusive credit boundary"
+  },
+  {
+    "id": "NOR-04",
+    "category": "normal",
+    "title": "Authorized draft only",
+    "request": {
+      "subject": "Authorized draft only",
+      "body": "Prepare a service-update draft to CONTACT001 about T001. Do not send anything or book a visit."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "drafts",
+          "where": {
+            "contact_id": "CONTACT001",
+            "status": "draft"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "draft_message"
+      ],
+      "reads": [
+        {
+          "collection": "contacts",
+          "record_id": "CONTACT001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "draft"
+        ],
+        [
+          "not been sent",
+          "not sent",
+          "review"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "draft_message",
+          "arguments": {
+            "contact_id": "CONTACT001",
+            "subject": "T001 update",
+            "body": "T001 remains open; operations will review timing."
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "A draft update to CONTACT001 is stored for review; it has not been sent."
+    },
+    "rationale": "Authorized draft only"
+  },
+  {
+    "id": "NOR-05",
+    "category": "normal",
+    "title": "Nonurgent reprioritization",
+    "request": {
+      "subject": "Nonurgent reprioritization",
+      "body": "T001 is now a nonurgent planned follow-up. Change severity to S3 but keep it open."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "id": "T001",
+            "severity": "S3",
+            "status": "open"
+          },
+          "count": 1,
+          "new_only": false
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "update_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "update_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "S3"
+        ],
+        [
+          "open"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "update_ticket",
+          "arguments": {
+            "ticket_id": "T001",
+            "expected_version": 1,
+            "severity": "S3"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 remains open and its priority is now S3."
+    },
+    "rationale": "Nonurgent reprioritization"
+  },
+  {
+    "id": "NOR-06",
+    "category": "normal",
+    "title": "Verified technician completion",
+    "request": {
+      "subject": "Verified technician completion",
+      "body": "The signed technician result now verifies resolution of T001. Please close it after checking that evidence."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "tickets",
+          "id": "T001",
+          "set": {
+            "resolution_verified": true
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "id": "T001",
+            "status": "resolved"
+          },
+          "count": 1,
+          "new_only": false
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "update_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "update_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "resolved",
+          "closed"
+        ],
+        [
+          "verified"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "update_ticket",
+          "arguments": {
+            "ticket_id": "T001",
+            "expected_version": 1,
+            "status": "resolved"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is resolved using the verified technician evidence."
+    },
+    "rationale": "Verified technician completion"
+  },
+  {
+    "id": "NOR-07",
+    "category": "normal",
+    "title": "Current invoice status",
+    "request": {
+      "subject": "Current invoice status",
+      "body": "Is I001 currently paid? Give its current amount. Do not change billing."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "paid"
+        ],
+        [
+          "501"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "completed",
+      "reply": "I001 is paid and totals $501.00. Billing was not changed."
+    },
+    "rationale": "Current invoice status"
+  },
+  {
+    "id": "NOR-08",
+    "category": "normal",
+    "title": "Reuse the existing incident",
+    "request": {
+      "subject": "Reuse the existing incident",
+      "body": "The same A001 cooling issue was already reported. Find its existing open ticket; do not open another."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "T001"
+        ],
+        [
+          "existing",
+          "already"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "completed",
+      "reply": "The existing open ticket is T001 for A001. No duplicate ticket was created."
+    },
+    "rationale": "Reuse the existing incident"
+  },
+  {
+    "id": "NOR-09",
+    "category": "normal",
+    "title": "New incident plus visit",
+    "request": {
+      "subject": "New incident plus visit",
+      "body": "Create an S2 ticket for A101 at S101 and schedule the earliest qualified visit for that new ticket."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "asset_id": "A101"
+          },
+          "count": 1,
+          "new_only": true
+        },
+        {
+          "collection": "visits",
+          "where": {},
+          "count": 1,
+          "new_only": true,
+          "join": {
+            "collection": "tickets",
+            "local": "ticket_id",
+            "where": {
+              "asset_id": "A101"
+            }
+          }
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "create_ticket",
+        "list_slots",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "ticket"
+        ],
+        [
+          "booked",
+          "scheduled"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          },
+          "save_as": "created"
+        },
+        {
+          "choose_slot": {
+            "asset_id": "A101",
+            "ticket_id": "$created.id",
+            "starts_at": null,
+            "technician_id": null
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "An S2 ticket for A101 is recorded and a qualified service visit is booked."
+    },
+    "rationale": "New incident plus visit"
+  }
+]

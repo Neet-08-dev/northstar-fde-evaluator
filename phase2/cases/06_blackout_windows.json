@@ -1,0 +1,301 @@
+[
+  {
+    "id": "LIVE6-1",
+    "category": "phase2",
+    "title": "Explicit offset conversion",
+    "request": {
+      "subject": "Explicit offset conversion",
+      "body": "Book T001 at the earliest qualified slot that does not overlap the new north-region blackout."
+    },
+    "fixture": {
+      "policy_patch": {
+        "version": "NS-LIVE-BLACKOUT",
+        "scheduling": {
+          "blackout_windows": [
+            {
+              "region": "north",
+              "start": "2030-04-08T09:00:00Z",
+              "end": "2030-04-08T12:00:00Z"
+            }
+          ]
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T14:00:00Z"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "14:00"
+        ],
+        [
+          "blackout",
+          "policy"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T14:00:00Z",
+            "technician_id": null
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked at 14:00 UTC after the north-region blackout ends."
+    },
+    "rationale": "Explicit offset conversion"
+  },
+  {
+    "id": "LIVE6-2",
+    "category": "phase2",
+    "title": "No qualified capacity",
+    "request": {
+      "subject": "No qualified capacity",
+      "body": "All qualified north slots overlap a blackout. Arrange an operations handoff instead of booking."
+    },
+    "fixture": {
+      "patches": [],
+      "policy_patch": {
+        "version": "NS-LIVE-BLACKOUT",
+        "scheduling": {
+          "blackout_windows": [
+            {
+              "region": "north",
+              "start": "2030-04-08T09:00:00Z",
+              "end": "2030-04-10T00:00:00Z"
+            }
+          ]
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "qualified",
+          "capacity"
+        ],
+        [
+          "operations",
+          "available"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "list_slots",
+          "arguments": {
+            "asset_id": "A001"
+          }
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "No qualified slot is available outside the blackout. Operations must review capacity."
+    },
+    "rationale": "No qualified capacity"
+  },
+  {
+    "id": "LIVE6-3",
+    "category": "phase2",
+    "title": "Busy preferred slot",
+    "request": {
+      "subject": "Busy preferred slot",
+      "body": "The blackout is south only. Book T001 in the north region at 10:00 UTC with a free qualified technician."
+    },
+    "fixture": {
+      "additions": {
+        "visits": [
+          {
+            "id": "VISIT-BASE",
+            "customer_id": "C003",
+            "ticket_id": "T003",
+            "technician_id": "TECH001",
+            "starts_at": "2030-04-08T10:00:00Z",
+            "duration_minutes": 60,
+            "status": "scheduled"
+          }
+        ]
+      },
+      "policy_patch": {
+        "version": "NS-LIVE-BLACKOUT",
+        "scheduling": {
+          "blackout_windows": [
+            {
+              "region": "south",
+              "start": "2030-04-08T09:00:00Z",
+              "end": "2030-04-08T12:00:00Z"
+            }
+          ]
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH002",
+            "starts_at": "2030-04-08T10:00:00Z"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "10:00"
+        ],
+        [
+          "TECH002",
+          "booked"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T10:00:00Z",
+            "technician_id": "TECH002"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked at 10:00 UTC with TECH002 because the other eligible technician is occupied."
+    },
+    "rationale": "Busy preferred slot"
+  }
+]

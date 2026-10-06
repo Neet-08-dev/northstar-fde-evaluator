@@ -1,0 +1,460 @@
+[
+  {
+    "id": "AMB-01",
+    "category": "ambiguous",
+    "title": "Two loading docks",
+    "request": {
+      "subject": "Two loading docks",
+      "body": "The loading dock cooling unit stopped. Send help."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "which",
+          "confirm"
+        ],
+        [
+          "site",
+          "asset"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Which site and asset do you mean: S001/A001 or S101/A101?"
+    },
+    "rationale": "Two loading docks"
+  },
+  {
+    "id": "AMB-02",
+    "category": "ambiguous",
+    "title": "Unspecified local time",
+    "request": {
+      "subject": "Unspecified local time",
+      "body": "Schedule T001 tomorrow at 10 local time. I am travelling and may mean my local time."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "timezone",
+          "time zone"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Which timezone should tomorrow at 10 use for T001?"
+    },
+    "rationale": "Unspecified local time"
+  },
+  {
+    "id": "AMB-03",
+    "category": "ambiguous",
+    "title": "Missing credit amount",
+    "request": {
+      "subject": "Missing credit amount",
+      "body": "I want an appropriate credit on I001, maybe a bit or the whole thing."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "amount"
+        ],
+        [
+          "credit"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "What specific USD credit amount are you requesting for I001?"
+    },
+    "rationale": "Missing credit amount"
+  },
+  {
+    "id": "AMB-04",
+    "category": "ambiguous",
+    "title": "Contradictory request identifiers",
+    "request": {
+      "subject": "Contradictory request identifiers",
+      "body": "Send someone to A001 at S101; actually maybe it is A101 at S001."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "site"
+        ],
+        [
+          "asset",
+          "unit"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Can you confirm the matching site and asset IDs before I book service?"
+    },
+    "rationale": "Contradictory request identifiers"
+  },
+  {
+    "id": "AMB-05",
+    "category": "ambiguous",
+    "title": "Unclear cancellation target",
+    "request": {
+      "subject": "Unclear cancellation target",
+      "body": "Cancel that appointment we discussed. I do not know the ticket or date."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "ticket"
+        ],
+        [
+          "date",
+          "appointment"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Which ticket and appointment date should operations review for cancellation?"
+    },
+    "rationale": "Unclear cancellation target"
+  },
+  {
+    "id": "AMB-06",
+    "category": "ambiguous",
+    "title": "Duplicate serial lookup",
+    "request": {
+      "subject": "Duplicate serial lookup",
+      "body": "Open a ticket for serial NS-SYNTH-00001. I cannot identify the site."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "assets",
+          "id": "A101",
+          "set": {
+            "serial": "NS-SYNTH-00001"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "which",
+          "confirm"
+        ],
+        [
+          "site"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Which site contains that serial? The current registry matches more than one asset."
+    },
+    "rationale": "Duplicate serial lookup"
+  },
+  {
+    "id": "AMB-07",
+    "category": "ambiguous",
+    "title": "End-of-day timezone absent",
+    "request": {
+      "subject": "End-of-day timezone absent",
+      "body": "Book T001 before end of day at S001; our site timezone is missing from the registry."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "sites",
+          "id": "S001",
+          "set": {
+            "timezone": null
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "timezone",
+          "time zone"
+        ],
+        [
+          "time",
+          "arrival"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "What timezone and exact latest arrival time should I use for S001?"
+    },
+    "rationale": "End-of-day timezone absent"
+  },
+  {
+    "id": "AMB-08",
+    "category": "ambiguous",
+    "title": "Bulk unspecified billing",
+    "request": {
+      "subject": "Bulk unspecified billing",
+      "body": "Credit all my invoices for the issues we had. Use whatever amount you think is right."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "invoice"
+        ],
+        [
+          "amount"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Which invoice IDs and USD amounts should be reviewed for credits?"
+    },
+    "rationale": "Bulk unspecified billing"
+  },
+  {
+    "id": "AMB-09",
+    "category": "ambiguous",
+    "title": "Contextless follow-up",
+    "request": {
+      "subject": "Contextless follow-up",
+      "body": "It still does not work. Do the same thing again."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "site",
+          "asset"
+        ],
+        [
+          "which",
+          "what"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "Which site or asset is failing, and what action are you asking us to repeat?"
+    },
+    "rationale": "Contextless follow-up"
+  }
+]

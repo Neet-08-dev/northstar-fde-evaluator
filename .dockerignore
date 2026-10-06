@@ -1,0 +1,6 @@
+.git
+.env
+.candidate.env
+reports
+**/__pycache__
+.venv

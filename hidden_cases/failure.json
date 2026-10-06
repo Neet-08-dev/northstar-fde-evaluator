@@ -1,0 +1,873 @@
+[
+  {
+    "id": "FAI-01",
+    "category": "failure",
+    "title": "Create transient recovery",
+    "request": {
+      "subject": "Create transient recovery",
+      "body": "Open an S2 ticket for A101 at S101; retry a transient tool error safely."
+    },
+    "fixture": {
+      "faults": {
+        "create_ticket": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "asset_id": "A101"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "create_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "ticket"
+        ],
+        [
+          "A101"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "The temporary error recovered and the A101 ticket is recorded once."
+    },
+    "rationale": "Create transient recovery"
+  },
+  {
+    "id": "FAI-02",
+    "category": "failure",
+    "title": "Lost create response",
+    "request": {
+      "subject": "Lost create response",
+      "body": "Open an S2 ticket for A101 at S101. If the response is lost, do not duplicate the ticket."
+    },
+    "fixture": {
+      "faults": {
+        "create_ticket": [
+          {
+            "code": "TIMEOUT_AFTER_COMMIT"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "asset_id": "A101"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "create_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "ticket"
+        ],
+        [
+          "once",
+          "confirmed"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "The A101 ticket is confirmed once after safe retry of the lost response."
+    },
+    "rationale": "Lost create response"
+  },
+  {
+    "id": "FAI-03",
+    "category": "failure",
+    "title": "Persistent create outage",
+    "request": {
+      "subject": "Persistent create outage",
+      "body": "Open an S2 ticket for A101 at S101; if it stays unavailable, hand off with context."
+    },
+    "fixture": {
+      "faults": {
+        "create_ticket": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "unavailable",
+          "failed"
+        ],
+        [
+          "operations",
+          "handoff"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          },
+          "allow_failure": true
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A101 ticket creation unavailable after three attempts."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The ticket service remains unavailable after bounded retries. Operations has the handoff for A101."
+    },
+    "rationale": "Persistent create outage"
+  },
+  {
+    "id": "FAI-04",
+    "category": "failure",
+    "title": "Schedule transient recovery",
+    "request": {
+      "subject": "Schedule transient recovery",
+      "body": "Book the earliest qualified visit for T001, handling a temporary dispatch outage."
+    },
+    "fixture": {
+      "faults": {
+        "schedule_visit": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "T001"
+        ],
+        [
+          "booked",
+          "scheduled"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": null
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked after the temporary dispatch error recovered."
+    },
+    "rationale": "Schedule transient recovery"
+  },
+  {
+    "id": "FAI-05",
+    "category": "failure",
+    "title": "Availability service outage",
+    "request": {
+      "subject": "Availability service outage",
+      "body": "Schedule T001 if availability can be verified; otherwise hand off."
+    },
+    "fixture": {
+      "faults": {
+        "list_slots": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "availability",
+          "unavailable"
+        ],
+        [
+          "operations",
+          "review"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "list_slots",
+          "arguments": {
+            "asset_id": "A001"
+          },
+          "allow_failure": true
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "Technician availability remains unavailable. Operations must arrange the visit; no booking is confirmed."
+    },
+    "rationale": "Availability service outage"
+  },
+  {
+    "id": "FAI-06",
+    "category": "failure",
+    "title": "Lost credit response",
+    "request": {
+      "subject": "Lost credit response",
+      "body": "Apply $50 to I001. A lost response must not cause a second financial effect."
+    },
+    "fixture": {
+      "faults": {
+        "issue_credit": [
+          {
+            "code": "TIMEOUT_AFTER_COMMIT"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "credits",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 5000
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "issue_credit"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "issue_credit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "credit"
+        ],
+        [
+          "one",
+          "confirmed"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "issue_credit",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 5000,
+            "approval_id": "",
+            "reason": "Verified paid invoice and SLA breach."
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "One $50 credit on I001 is confirmed after safe retry of the lost response."
+    },
+    "rationale": "Lost credit response"
+  },
+  {
+    "id": "FAI-07",
+    "category": "failure",
+    "title": "Read dependency unavailable",
+    "request": {
+      "subject": "Read dependency unavailable",
+      "body": "Determine I001 eligibility for a $50 credit. Do not act if records cannot be verified."
+    },
+    "fixture": {
+      "faults": {
+        "get_record": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ],
+        "search_records": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "billing"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "unavailable",
+          "cannot"
+        ],
+        [
+          "billing",
+          "review"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "get_record",
+          "arguments": {
+            "collection": "invoices",
+            "record_id": "I001"
+          },
+          "allow_failure": true
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "billing",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The customer records remain unavailable, so eligibility cannot be verified. Billing has the review handoff."
+    },
+    "rationale": "Read dependency unavailable"
+  },
+  {
+    "id": "FAI-08",
+    "category": "failure",
+    "title": "Nonretryable downstream rejection",
+    "request": {
+      "subject": "Nonretryable downstream rejection",
+      "body": "Create an S2 ticket for A101. A downstream entitlement rejection needs operations review."
+    },
+    "fixture": {
+      "faults": {
+        "create_ticket": [
+          {
+            "code": "DOWNSTREAM_ENTITLEMENT_REJECTED"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "rejected"
+        ],
+        [
+          "operations",
+          "review"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          },
+          "allow_failure": true
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The downstream service rejected the ticket request. Operations must review it before retrying."
+    },
+    "rationale": "Nonretryable downstream rejection"
+  },
+  {
+    "id": "FAI-09",
+    "category": "failure",
+    "title": "Optimistic ticket version race",
+    "request": {
+      "subject": "Optimistic ticket version race",
+      "body": "Change T001 to S3 while keeping its status. If the version changes, reread before retrying."
+    },
+    "fixture": {
+      "faults": {
+        "update_ticket": [
+          {
+            "code": "VERSION_CONFLICT",
+            "patches": [
+              {
+                "collection": "tickets",
+                "id": "T001",
+                "set": {
+                  "version": 2
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "id": "T001",
+            "severity": "S3",
+            "status": "open",
+            "version": 3
+          },
+          "count": 1,
+          "new_only": false
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "update_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "update_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "S3"
+        ],
+        [
+          "open"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "update_ticket",
+          "arguments": {
+            "ticket_id": "T001",
+            "expected_version": 1,
+            "severity": "S3"
+          },
+          "refresh_version": true
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 was rechecked after the version conflict and is now S3 while remaining open."
+    },
+    "rationale": "Optimistic ticket version race"
+  }
+]

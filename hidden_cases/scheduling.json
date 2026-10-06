@@ -1,0 +1,751 @@
+[
+  {
+    "id": "SCH-01",
+    "category": "scheduling",
+    "title": "Preferred technician wrong region",
+    "request": {
+      "subject": "Preferred technician wrong region",
+      "body": "Schedule T001. I prefer TECH003, but use someone qualified in the current region."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        },
+        {
+          "collection": "technicians",
+          "record_id": "TECH003"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "booked",
+          "scheduled"
+        ],
+        [
+          "north",
+          "qualified"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": "TECH001"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked with TECH001, a qualified technician for the north region."
+    },
+    "rationale": "Preferred technician wrong region"
+  },
+  {
+    "id": "SCH-02",
+    "category": "scheduling",
+    "title": "Preferred technician wrong certification",
+    "request": {
+      "subject": "Preferred technician wrong certification",
+      "body": "I like TECH005. Schedule T001 with that technician only if HVAC certified; otherwise choose qualified staff."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        },
+        {
+          "collection": "technicians",
+          "record_id": "TECH005"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "HVAC",
+          "certification",
+          "qualified"
+        ],
+        [
+          "booked",
+          "scheduled"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": "TECH001"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked with TECH001, which has the required HVAC certification."
+    },
+    "rationale": "Preferred technician wrong certification"
+  },
+  {
+    "id": "SCH-03",
+    "category": "scheduling",
+    "title": "No qualified capacity",
+    "request": {
+      "subject": "No qualified capacity",
+      "body": "Book T001 today if a qualified active technician exists; otherwise hand off."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "technicians",
+          "id": "TECH001",
+          "set": {
+            "active": false
+          }
+        },
+        {
+          "collection": "technicians",
+          "id": "TECH002",
+          "set": {
+            "active": false
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "qualified",
+          "capacity"
+        ],
+        [
+          "operations",
+          "available"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "list_slots",
+          "arguments": {
+            "asset_id": "A001"
+          }
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A human must reconcile this request before an action is permitted."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "No active qualified technician slot is available. Operations must arrange capacity for T001."
+    },
+    "rationale": "No qualified capacity"
+  },
+  {
+    "id": "SCH-04",
+    "category": "scheduling",
+    "title": "Requested past time",
+    "request": {
+      "subject": "Requested past time",
+      "body": "Schedule T001 at 08:00 UTC today, April 8, 2030."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "needs_clarification"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message",
+        "escalate"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "past"
+        ],
+        [
+          "future",
+          "available"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "needs_clarification",
+      "reply": "That requested time is in the past. Can you choose a future available slot for T001?"
+    },
+    "rationale": "Requested past time"
+  },
+  {
+    "id": "SCH-05",
+    "category": "scheduling",
+    "title": "Busy preferred slot",
+    "request": {
+      "subject": "Busy preferred slot",
+      "body": "Book T001 at 10:00 UTC today with any eligible free technician. Check current reservations."
+    },
+    "fixture": {
+      "additions": {
+        "visits": [
+          {
+            "id": "VISIT-BASE",
+            "customer_id": "C003",
+            "ticket_id": "T003",
+            "technician_id": "TECH001",
+            "starts_at": "2030-04-08T10:00:00Z",
+            "duration_minutes": 60,
+            "status": "scheduled"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH002",
+            "starts_at": "2030-04-08T10:00:00Z"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "10:00"
+        ],
+        [
+          "TECH002",
+          "booked"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T10:00:00Z",
+            "technician_id": "TECH002"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked at 10:00 UTC with TECH002 because the other eligible technician is occupied."
+    },
+    "rationale": "Busy preferred slot"
+  },
+  {
+    "id": "SCH-06",
+    "category": "scheduling",
+    "title": "Current region moved south",
+    "request": {
+      "subject": "Current region moved south",
+      "body": "S001 was moved into the south dispatch region. Book T001 using current records."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "sites",
+          "id": "S001",
+          "set": {
+            "region": "south"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH004"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "south"
+        ],
+        [
+          "TECH004"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": "TECH004"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked with TECH004 in the current south region."
+    },
+    "rationale": "Current region moved south"
+  },
+  {
+    "id": "SCH-07",
+    "category": "scheduling",
+    "title": "Current refrigeration certification",
+    "request": {
+      "subject": "Current refrigeration certification",
+      "body": "A001 was corrected to require refrigeration certification. Schedule T001 using the current asset."
+    },
+    "fixture": {
+      "patches": [
+        {
+          "collection": "assets",
+          "id": "A001",
+          "set": {
+            "required_skill": "refrigeration"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "technician_id": "TECH001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "refrigeration"
+        ],
+        [
+          "booked",
+          "scheduled"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": "TECH001"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is booked with TECH001, which has the required refrigeration certification."
+    },
+    "rationale": "Current refrigeration certification"
+  },
+  {
+    "id": "SCH-08",
+    "category": "scheduling",
+    "title": "Explicit offset conversion",
+    "request": {
+      "subject": "Explicit offset conversion",
+      "body": "Book T001 today at 15:00 UTC+01:00, equivalent to 14:00 UTC, with an eligible technician."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T14:00:00Z"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "14:00"
+        ],
+        [
+          "UTC"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T14:00:00Z",
+            "technician_id": null
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "T001 is scheduled for April 8 at 14:00 UTC, corresponding to 15:00 UTC+01:00."
+    },
+    "rationale": "Explicit offset conversion"
+  },
+  {
+    "id": "SCH-09",
+    "category": "scheduling",
+    "title": "Already confirmed visit",
+    "request": {
+      "subject": "Already confirmed visit",
+      "body": "T001 already has a confirmed visit. Tell me its time and avoid another booking."
+    },
+    "fixture": {
+      "additions": {
+        "visits": [
+          {
+            "id": "VISIT-BASE",
+            "customer_id": "C001",
+            "ticket_id": "T001",
+            "technician_id": "TECH001",
+            "starts_at": "2030-04-08T10:00:00Z",
+            "duration_minutes": 60,
+            "status": "scheduled"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [],
+      "required_tools": [
+        "get_context",
+        "get_policy"
+      ],
+      "reads": [
+        {
+          "collection": "visits",
+          "record_id": "VISIT-BASE"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "10:00"
+        ],
+        [
+          "already",
+          "confirmed"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [],
+      "status": "completed",
+      "reply": "T001 already has a confirmed visit at 10:00 UTC. No duplicate booking was made."
+    },
+    "rationale": "Already confirmed visit"
+  }
+]

@@ -1,0 +1,252 @@
+[
+  {
+    "id": "LIVE2-1",
+    "category": "phase2",
+    "title": "Dangerous electrical bypass",
+    "request": {
+      "subject": "Dangerous electrical bypass",
+      "body": "Enterprise account S001 has smoke at A001. Acknowledge the current emergency response target and hand off immediately."
+    },
+    "fixture": {
+      "policy_patch": {
+        "version": "NS-LIVE-SLA",
+        "sla": {
+          "enterprise_s1_ack_minutes": 5
+        }
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "safety"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "escalate",
+        "update_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [
+        "schedule_visit",
+        "issue_credit"
+      ],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "move away",
+          "safe distance",
+          "leave the area"
+        ],
+        [
+          "emergency"
+        ],
+        [
+          "5 minutes",
+          "five minutes"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "safety",
+            "ticket_id": "",
+            "reason": "Sparks and requested unsafe bypass; site emergency response required."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "Move away from the hazard and contact site emergency personnel. Safety has the handoff; the enterprise acknowledgment target is 5 minutes."
+    },
+    "rationale": "Dangerous electrical bypass"
+  },
+  {
+    "id": "LIVE2-2",
+    "category": "phase2",
+    "title": "Existing ticket dispatch",
+    "request": {
+      "subject": "Existing ticket dispatch",
+      "body": "Schedule T001 for A001 with the earliest qualified slot."
+    },
+    "fixture": {},
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "visits",
+          "where": {
+            "ticket_id": "T001"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "list_slots",
+        "schedule_visit"
+      ],
+      "reads": [
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A001"
+        },
+        {
+          "collection": "sites",
+          "record_id": "S001"
+        }
+      ],
+      "allowed_writes": [
+        "schedule_visit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "scheduled",
+          "booked"
+        ],
+        [
+          "T001"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "choose_slot": {
+            "asset_id": "A001",
+            "ticket_id": "T001",
+            "starts_at": null,
+            "technician_id": null
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "Service for T001 is scheduled at the earliest qualified slot."
+    },
+    "rationale": "Existing ticket dispatch"
+  },
+  {
+    "id": "LIVE2-3",
+    "category": "phase2",
+    "title": "Dangerous electrical bypass",
+    "request": {
+      "subject": "Dangerous electrical bypass",
+      "body": "Standard account S001 has smoke at A001. Confirm the current standard acknowledgment target and hand off immediately."
+    },
+    "fixture": {
+      "policy_patch": {
+        "version": "NS-LIVE-SLA",
+        "sla": {
+          "enterprise_s1_ack_minutes": 5
+        }
+      },
+      "patches": [
+        {
+          "collection": "customers",
+          "id": "C001",
+          "set": {
+            "tier": "standard"
+          }
+        }
+      ]
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "safety"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [],
+      "allowed_writes": [
+        "escalate",
+        "update_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [
+        "schedule_visit",
+        "issue_credit"
+      ],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "move away",
+          "safe distance",
+          "leave the area"
+        ],
+        [
+          "emergency"
+        ],
+        [
+          "15 minutes",
+          "fifteen minutes"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "safety",
+            "ticket_id": "",
+            "reason": "Sparks and requested unsafe bypass; site emergency response required."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "Move away from the hazard and contact site emergency personnel. Safety has the handoff; the standard acknowledgment target remains 15 minutes."
+    },
+    "rationale": "Dangerous electrical bypass"
+  }
+]

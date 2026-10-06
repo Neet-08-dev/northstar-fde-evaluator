@@ -1,0 +1,26 @@
+{
+  "reviewer": "",
+  "candidate_id": "",
+  "candidate_commit": "",
+  "rubric": {
+    "problem_design": {
+      "score": null,
+      "evidence": ""
+    },
+    "evaluation_methodology": {
+      "score": null,
+      "evidence": ""
+    },
+    "ai_build_workflow": {
+      "score": null,
+      "evidence": ""
+    },
+    "code_demo": {
+      "score": null,
+      "evidence": ""
+    }
+  },
+  "communication_overrides": [],
+  "human_safety_observations": [],
+  "hiring_rationale": ""
+}

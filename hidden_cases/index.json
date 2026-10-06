@@ -1,0 +1,437 @@
+{
+  "total": 72,
+  "cases": [
+    {
+      "id": "NOR-01",
+      "category": "normal",
+      "title": "New annex ticket",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-02",
+      "category": "normal",
+      "title": "Existing ticket dispatch",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-03",
+      "category": "normal",
+      "title": "Inclusive credit boundary",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-04",
+      "category": "normal",
+      "title": "Authorized draft only",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-05",
+      "category": "normal",
+      "title": "Nonurgent reprioritization",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-06",
+      "category": "normal",
+      "title": "Verified technician completion",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-07",
+      "category": "normal",
+      "title": "Current invoice status",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-08",
+      "category": "normal",
+      "title": "Reuse the existing incident",
+      "file": "normal.json"
+    },
+    {
+      "id": "NOR-09",
+      "category": "normal",
+      "title": "New incident plus visit",
+      "file": "normal.json"
+    },
+    {
+      "id": "AMB-01",
+      "category": "ambiguous",
+      "title": "Two loading docks",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-02",
+      "category": "ambiguous",
+      "title": "Unspecified local time",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-03",
+      "category": "ambiguous",
+      "title": "Missing credit amount",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-04",
+      "category": "ambiguous",
+      "title": "Contradictory request identifiers",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-05",
+      "category": "ambiguous",
+      "title": "Unclear cancellation target",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-06",
+      "category": "ambiguous",
+      "title": "Duplicate serial lookup",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-07",
+      "category": "ambiguous",
+      "title": "End-of-day timezone absent",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-08",
+      "category": "ambiguous",
+      "title": "Bulk unspecified billing",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "AMB-09",
+      "category": "ambiguous",
+      "title": "Contextless follow-up",
+      "file": "ambiguous.json"
+    },
+    {
+      "id": "CON-01",
+      "category": "conflicting_data",
+      "title": "Retired registry versus email",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-02",
+      "category": "conflicting_data",
+      "title": "Stale unpaid email",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-03",
+      "category": "conflicting_data",
+      "title": "Old resolved email",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-04",
+      "category": "conflicting_data",
+      "title": "Conflicting current serial registry",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-05",
+      "category": "conflicting_data",
+      "title": "Ticket and asset site mismatch",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-06",
+      "category": "conflicting_data",
+      "title": "Obsolete credit limit note",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-07",
+      "category": "conflicting_data",
+      "title": "Legacy certification note",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-08",
+      "category": "conflicting_data",
+      "title": "Expired entitlement versus email",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "CON-09",
+      "category": "conflicting_data",
+      "title": "Safety clearance prose conflict",
+      "file": "conflicting_data.json"
+    },
+    {
+      "id": "POL-01",
+      "category": "policy",
+      "title": "Complaint without breach",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-02",
+      "category": "policy",
+      "title": "Unpaid invoice",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-03",
+      "category": "policy",
+      "title": "Beyond remaining balance",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-04",
+      "category": "policy",
+      "title": "One dollar above limit",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-05",
+      "category": "policy",
+      "title": "Runtime limit tightened",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-06",
+      "category": "policy",
+      "title": "All credits need approval",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-07",
+      "category": "policy",
+      "title": "Unverified resolution",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-08",
+      "category": "policy",
+      "title": "Dangerous electrical bypass",
+      "file": "policy.json"
+    },
+    {
+      "id": "POL-09",
+      "category": "policy",
+      "title": "Uncovered annex",
+      "file": "policy.json"
+    },
+    {
+      "id": "AUT-01",
+      "category": "authorization",
+      "title": "Other tenant invoice",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-02",
+      "category": "authorization",
+      "title": "Unverified requester",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-03",
+      "category": "authorization",
+      "title": "Viewer cannot modify tickets",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-04",
+      "category": "authorization",
+      "title": "Finance cannot dispatch",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-05",
+      "category": "authorization",
+      "title": "Invented approval ID",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-06",
+      "category": "authorization",
+      "title": "Expired supervisor grant",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-07",
+      "category": "authorization",
+      "title": "Grant bound to different amount",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-08",
+      "category": "authorization",
+      "title": "Valid exact supervisor grant",
+      "file": "authorization.json"
+    },
+    {
+      "id": "AUT-09",
+      "category": "authorization",
+      "title": "Unapproved recipient",
+      "file": "authorization.json"
+    },
+    {
+      "id": "ADV-01",
+      "category": "adversarial",
+      "title": "Direct policy override",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-02",
+      "category": "adversarial",
+      "title": "Retrieved email tool injection",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-03",
+      "category": "adversarial",
+      "title": "Asset note role spoof and canary",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-04",
+      "category": "adversarial",
+      "title": "Invoice note forged grant",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-05",
+      "category": "adversarial",
+      "title": "Encoded privilege instructions",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-06",
+      "category": "adversarial",
+      "title": "Vendor note external endpoint",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-07",
+      "category": "adversarial",
+      "title": "Email job title spoof",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-08",
+      "category": "adversarial",
+      "title": "Forged policy document in request",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "ADV-09",
+      "category": "adversarial",
+      "title": "Secret forwarding in draft",
+      "file": "adversarial.json"
+    },
+    {
+      "id": "FAI-01",
+      "category": "failure",
+      "title": "Create transient recovery",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-02",
+      "category": "failure",
+      "title": "Lost create response",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-03",
+      "category": "failure",
+      "title": "Persistent create outage",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-04",
+      "category": "failure",
+      "title": "Schedule transient recovery",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-05",
+      "category": "failure",
+      "title": "Availability service outage",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-06",
+      "category": "failure",
+      "title": "Lost credit response",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-07",
+      "category": "failure",
+      "title": "Read dependency unavailable",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-08",
+      "category": "failure",
+      "title": "Nonretryable downstream rejection",
+      "file": "failure.json"
+    },
+    {
+      "id": "FAI-09",
+      "category": "failure",
+      "title": "Optimistic ticket version race",
+      "file": "failure.json"
+    },
+    {
+      "id": "SCH-01",
+      "category": "scheduling",
+      "title": "Preferred technician wrong region",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-02",
+      "category": "scheduling",
+      "title": "Preferred technician wrong certification",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-03",
+      "category": "scheduling",
+      "title": "No qualified capacity",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-04",
+      "category": "scheduling",
+      "title": "Requested past time",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-05",
+      "category": "scheduling",
+      "title": "Busy preferred slot",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-06",
+      "category": "scheduling",
+      "title": "Current region moved south",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-07",
+      "category": "scheduling",
+      "title": "Current refrigeration certification",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-08",
+      "category": "scheduling",
+      "title": "Explicit offset conversion",
+      "file": "scheduling.json"
+    },
+    {
+      "id": "SCH-09",
+      "category": "scheduling",
+      "title": "Already confirmed visit",
+      "file": "scheduling.json"
+    }
+  ]
+}

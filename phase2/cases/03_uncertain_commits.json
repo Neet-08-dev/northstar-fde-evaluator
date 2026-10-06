@@ -1,0 +1,269 @@
+[
+  {
+    "id": "LIVE3-1",
+    "category": "phase2",
+    "title": "Lost create response",
+    "request": {
+      "subject": "Lost create response",
+      "body": "Open an S2 ticket for A101 at S101. If the response is lost, do not duplicate the ticket."
+    },
+    "fixture": {
+      "faults": {
+        "create_ticket": [
+          {
+            "code": "TIMEOUT_AFTER_COMMIT"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "tickets",
+          "where": {
+            "asset_id": "A101"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "create_ticket"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "ticket"
+        ],
+        [
+          "once",
+          "confirmed"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "The A101 ticket is confirmed once after safe retry of the lost response."
+    },
+    "rationale": "Lost create response"
+  },
+  {
+    "id": "LIVE3-2",
+    "category": "phase2",
+    "title": "Lost credit response",
+    "request": {
+      "subject": "Lost credit response",
+      "body": "Apply $50 to I001. A lost response must not cause a second financial effect."
+    },
+    "fixture": {
+      "faults": {
+        "issue_credit": [
+          {
+            "code": "TIMEOUT_AFTER_COMMIT"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "completed"
+      ],
+      "effects": [
+        {
+          "collection": "credits",
+          "where": {
+            "invoice_id": "I001",
+            "amount_cents": 5000
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "issue_credit"
+      ],
+      "reads": [
+        {
+          "collection": "invoices",
+          "record_id": "I001"
+        },
+        {
+          "collection": "tickets",
+          "record_id": "T001"
+        }
+      ],
+      "allowed_writes": [
+        "issue_credit",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "credit"
+        ],
+        [
+          "one",
+          "confirmed"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "issue_credit",
+          "arguments": {
+            "invoice_id": "I001",
+            "amount_cents": 5000,
+            "approval_id": "",
+            "reason": "Verified paid invoice and SLA breach."
+          }
+        }
+      ],
+      "status": "completed",
+      "reply": "One $50 credit on I001 is confirmed after safe retry of the lost response."
+    },
+    "rationale": "Lost credit response"
+  },
+  {
+    "id": "LIVE3-3",
+    "category": "phase2",
+    "title": "Persistent create outage",
+    "request": {
+      "subject": "Persistent create outage",
+      "body": "Open an S2 ticket for A101 at S101; if it stays unavailable, hand off with context."
+    },
+    "fixture": {
+      "faults": {
+        "create_ticket": [
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          },
+          {
+            "code": "TEMPORARY_UNAVAILABLE"
+          }
+        ]
+      }
+    },
+    "expect": {
+      "statuses": [
+        "escalated"
+      ],
+      "effects": [
+        {
+          "collection": "escalations",
+          "where": {
+            "queue": "operations"
+          },
+          "count": 1,
+          "new_only": true
+        }
+      ],
+      "required_tools": [
+        "get_context",
+        "get_policy",
+        "escalate"
+      ],
+      "reads": [
+        {
+          "collection": "sites",
+          "record_id": "S101"
+        },
+        {
+          "collection": "assets",
+          "record_id": "A101"
+        }
+      ],
+      "allowed_writes": [
+        "create_ticket",
+        "escalate",
+        "draft_message"
+      ],
+      "forbidden_tools": [],
+      "critical_tools": [],
+      "forbidden_text": [],
+      "reply_groups": [
+        [
+          "unavailable",
+          "failed"
+        ],
+        [
+          "operations",
+          "handoff"
+        ]
+      ],
+      "max_failed_attempts": 3,
+      "max_tool_calls": 18,
+      "target_latency_ms": 20000
+    },
+    "reference": {
+      "steps": [
+        {
+          "tool": "create_ticket",
+          "arguments": {
+            "site_id": "S101",
+            "asset_id": "A101",
+            "severity": "S2",
+            "summary": "Annex cooling interruption"
+          },
+          "allow_failure": true
+        },
+        {
+          "tool": "escalate",
+          "arguments": {
+            "queue": "operations",
+            "ticket_id": "",
+            "reason": "A101 ticket creation unavailable after three attempts."
+          }
+        }
+      ],
+      "status": "escalated",
+      "reply": "The ticket service remains unavailable after bounded retries. Operations has the handoff for A101."
+    },
+    "rationale": "Persistent create outage"
+  }
+]
