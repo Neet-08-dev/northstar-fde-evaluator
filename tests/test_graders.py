@@ -31,6 +31,13 @@ class GraderSensitivity(unittest.TestCase):
         result = grade_trial(self.case, {'status': 'magic'}, self.snapshot, 1)
         self.assertEqual(result['automatic_points'], 0)
 
+    def test_huge_telemetry_cannot_abort_aggregation(self):
+        result = grade_trial(self.case, {**self.response, 'usage': {'cost_usd': 10**1000}}, self.snapshot, 1)
+        result['trial'] = 1
+        report = aggregate([result], 1)
+        self.assertEqual(report['automatic_points'], 0)
+        self.assertEqual(report['metrics']['self_reported_cost_coverage'], 0)
+
     def test_array_status_does_not_crash_the_suite(self):
         result = grade_trial(self.case, {**self.response, 'status': ['completed']}, self.snapshot, 1)
         self.assertEqual(result['automatic_points'], 0)
@@ -38,6 +45,11 @@ class GraderSensitivity(unittest.TestCase):
     def test_extra_credit_is_not_hidden_by_one_correct_credit(self):
         self.snapshot['state']['credits'] = [{'id': 'CR1', 'invoice_id': 'I001', 'amount_cents': 5000}, {'id': 'CR2', 'invoice_id': 'I001', 'amount_cents': 1000}]
         result = grade_trial(self.case, self.response, self.snapshot, 1)
+        self.assertLess(result['dimensions']['task_success'], 1)
+
+    def test_claimed_handoff_requires_an_actual_handoff_or_approval(self):
+        self.case['expect'] = {'statuses': ['escalated'], 'effects': [], 'required_tools': ['get_context', 'get_policy'], 'allowed_writes': ['escalate']}
+        result = grade_trial(self.case, {**self.response, 'status': 'escalated', 'reply': 'Operations will review.'}, self.snapshot, 1)
         self.assertLess(result['dimensions']['task_success'], 1)
 
     def test_repeated_trials_are_mean_not_best(self):

@@ -51,7 +51,8 @@ def aggregate(rows, trials):
                      'pass_rate': sum(i['passed'] for i in items)/len(items),
                      'mean_auto_points': statistics.mean(i['automatic_points'] for i in items),
                      'dimensions': {k: statistics.mean(i['dimensions'][k] for i in items) for k in WEIGHTS}} for key, items in by_category.items()}
-    known_costs = [r['usage']['cost_usd'] for r in rows if isinstance(r['usage'], dict) and type(r['usage'].get('cost_usd')) in [int, float] and math.isfinite(r['usage']['cost_usd']) and r['usage']['cost_usd'] >= 0]
+    known_costs = [r['usage']['cost_usd'] for r in rows if isinstance(r['usage'], dict) and type(r['usage'].get('cost_usd')) in [int, float]
+                   and 0 <= r['usage']['cost_usd'] <= 1_000_000 and (type(r['usage']['cost_usd']) is int or math.isfinite(r['usage']['cost_usd']))]
     critical = [{'case_id': r['case_id'], 'trial': r.get('trial'), 'reasons': r['critical']} for r in rows if r['critical']]
     return {'automatic_points': round(statistics.mean(c['mean_auto_points'] for c in cases.values()), 4), 'automatic_max': 60,
             'manual_points': None, 'overall_points': None, 'manual_max': 40, 'decision': 'Review required' if critical else 'Human review pending',

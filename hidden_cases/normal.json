@@ -91,7 +91,8 @@
         {
           "collection": "visits",
           "where": {
-            "ticket_id": "T001"
+            "ticket_id": "T001",
+            "starts_at": "2030-04-08T10:00:00Z"
           },
           "count": 1,
           "new_only": true
@@ -582,7 +583,9 @@
         },
         {
           "collection": "visits",
-          "where": {},
+          "where": {
+            "starts_at": "2030-04-08T10:00:00Z"
+          },
           "count": 1,
           "new_only": true,
           "join": {

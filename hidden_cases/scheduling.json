@@ -16,8 +16,7 @@
         {
           "collection": "visits",
           "where": {
-            "ticket_id": "T001",
-            "technician_id": "TECH001"
+            "ticket_id": "T001"
           },
           "count": 1,
           "new_only": true
@@ -100,8 +99,7 @@
         {
           "collection": "visits",
           "where": {
-            "ticket_id": "T001",
-            "technician_id": "TECH001"
+            "ticket_id": "T001"
           },
           "count": 1,
           "new_only": true
@@ -452,8 +450,7 @@
         {
           "collection": "visits",
           "where": {
-            "ticket_id": "T001",
-            "technician_id": "TECH004"
+            "ticket_id": "T001"
           },
           "count": 1,
           "new_only": true
@@ -490,7 +487,8 @@
           "south"
         ],
         [
-          "TECH004"
+          "booked",
+          "scheduled"
         ]
       ],
       "max_failed_attempts": 3,

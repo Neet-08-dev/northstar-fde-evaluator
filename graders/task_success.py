@@ -7,6 +7,12 @@ def score(case, response, snapshot):
     checks = [('status', response['status'] in expected['statuses'])]
     checks.extend(('effect_' + str(i), check_effect(effect, snapshot)) for i, effect in enumerate(expected.get('effects', [])))
     checks.append(('no_forbidden_effects', not denied_effects(expected, snapshot)))
+    if response['status'] == 'escalated':
+        actual_handoff = False
+        for collection in ['escalations', 'approvals']:
+            old = {r['id'] for r in snapshot['initial'].get(collection, [])}
+            actual_handoff |= any(r['id'] not in old for r in snapshot['state'].get(collection, []))
+        checks.append(('actual_handoff', actual_handoff))
     # One correct action cannot conceal extra tickets, bookings, credits or approvals.
     for collection in ['tickets', 'visits', 'credits', 'approvals']:
         old = {r['id'] for r in snapshot['initial'].get(collection, [])}
