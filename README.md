@@ -2,6 +2,14 @@
 
 Keep this repository restricted to the hiring team. Never put it in the candidate repository, a candidate branch, a candidate-visible CI job or the submitted container. Baseline: 72 hidden cases, eight categories, three independent trials by default. Six phase-2 packs add 18 targeted acceptance cases.
 
+## GitHub access and candidate handoff
+
+The candidate starter is a separate public template repository, `northstar-fde-candidate`. This evaluator is a private repository, `northstar-fde-evaluator`. Invite only interviewers to this repository. Its tests and calibration workflow run privately; keep candidate grading runs and reports private too.
+
+For each candidate, create a **Private** repository from the public starter's **Use this template** button, such as `fde-submission-017`. Invite only that candidate and the hiring team to the submission repository. Share the brief, deadline, agreed model budget and published scoring dimensions. Candidates may instead create their own private template copy and grant you access. A fork of a public repository remains public, so use template copies for private submissions.
+
+At submission, record the repository URL and exact commit SHA. Clone and check out that commit, then use it as the build source below. Keep the private evaluator, hidden cases and reports outside the submitted repository. Run one phase-2 change using `phase2/README.md`, complete the human scorecard, and share feedback without disclosing the hidden suite or answer traces.
+
 ## Calibrate without Docker or model keys
 Python 3.12+; no packages to install:
 
