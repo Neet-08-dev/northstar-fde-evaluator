@@ -4,7 +4,7 @@ Keep this repository restricted to the hiring team. Never put it in the candidat
 
 ## GitHub access and candidate handoff
 
-The candidate starter is a separate public template repository, `northstar-fde-candidate`. This evaluator is a private repository, `northstar-fde-evaluator`. Invite only interviewers to this repository. Its tests and calibration workflow run privately; keep candidate grading runs and reports private too.
+The [candidate starter](https://github.com/Neet-08-dev/northstar-fde-candidate) is a separate public template repository. This evaluator is a private repository, `northstar-fde-evaluator`. Invite only interviewers to this repository. Its tests and calibration workflow run privately; keep candidate grading runs and reports private too. Read [HIRING_SETUP.md](HIRING_SETUP.md) for the complete distribution and local grading steps.
 
 For each candidate, create a **Private** repository from the public starter's **Use this template** button, such as `fde-submission-017`. Invite only that candidate and the hiring team to the submission repository. Share the brief, deadline, agreed model budget and published scoring dimensions. Candidates may instead create their own private template copy and grant you access. A fork of a public repository remains public, so use template copies for private submissions.
 
