@@ -48,4 +48,4 @@ docker compose down
 
 Replace the build path with the actual submitted repository at its exact commit. Add budget-limited model credentials only to .candidate.env. Read reports/FDE-017/report.md and the server-side traces privately, complete the human rubric, then choose one 45-minute phase-2 card. Candidates never receive hidden cases, grader files or answer traces. Automatic scoring is 60 points; 40 evidence-backed human points remain pending until review.
 
-To validate the evaluator without Docker or model access: `python run_assessment.py --self-check --trials 3` from its root. For detailed commands, scores, limitations and live acceptance packs, read its README. See VERIFICATION.md for the actual validation performed on this delivery.
+To validate the evaluator without Docker or model access: `python run_assessment.py --self-check --trials 3` from its root. For detailed commands, scores, limitations and live acceptance packs, read its README. See [verification/VERIFICATION.md](verification/VERIFICATION.md) for the actual validation performed on this delivery.
